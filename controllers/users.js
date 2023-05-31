@@ -7,18 +7,16 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.status(ERROR_CODE.OK).send(users);
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(ERROR_CODE.SERVER_ERROR).send({
         message: 'На сервере произошла ошибка',
-        err: err.message,
-        stack: err.stack,
       });
     });
 };
 
 const getUserById = (req, res) => {
   userModel
-    .findById(req.params._id)
+    .findById(req.params.userId)
     .orFail(new Error('NotFound'))
     .then((user) => res.send(user))
     .catch((err) => {
@@ -63,7 +61,7 @@ const createUser = (req, res) => {
 };
 
 const updateUser = (req, res) => {
-  const userId = req.user_id;
+  const userId = req.user._id;
   const { name, about } = req.body;
   userModel
     .findByIdAndUpdate(
@@ -94,7 +92,7 @@ const updateUser = (req, res) => {
 };
 
 const updateUserAvatar = (req, res) => {
-  const userId = req.user_id;
+  const userId = req.user._id;
   const { avatar } = req.body;
   userModel
     .findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
