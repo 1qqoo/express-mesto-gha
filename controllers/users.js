@@ -63,7 +63,7 @@ const createUser = (req, res) => {
 };
 
 const updateUser = (req, res) => {
-  const userId = req._id;
+  const userId = req.user_id;
   const { name, about } = req.body;
   userModel
     .findByIdAndUpdate(
@@ -94,7 +94,7 @@ const updateUser = (req, res) => {
 };
 
 const updateUserAvatar = (req, res) => {
-  const userId = req._id;
+  const userId = req.user_id;
   const { avatar } = req.body;
   userModel
     .findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
