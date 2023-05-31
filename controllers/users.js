@@ -5,7 +5,7 @@ const getUsers = (req, res) => {
   userModel
     .find({})
     .then((users) => {
-      res.status(ERROR_CODE.OK).send({ data: users });
+      res.status(ERROR_CODE.OK).send(users);
     })
     .catch((err) => {
       res.status(ERROR_CODE.SERVER_ERROR).send({
@@ -20,7 +20,7 @@ const getUserById = (req, res) => {
   userModel
     .findById(req.params._id)
     .orFail(new Error('NotFound'))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === 'CastError') {
         res
@@ -47,7 +47,7 @@ const createUser = (req, res) => {
       avatar,
     })
     .then((user) => {
-      res.status(ERROR_CODE.CREATED).send({ data: user });
+      res.status(ERROR_CODE.CREATED).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

@@ -16,12 +16,12 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
+  const owner = req._id;
   cardModel
     .create({
       name,
       link,
-      owner: req.user._id,
-      ...req.body,
+      owner,
     })
     .then((card) => {
       res.status(ERROR_CODE.CREATED).send(card);
