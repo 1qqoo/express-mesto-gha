@@ -16,7 +16,7 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  const owner = req._id;
+  const owner = req.user._id;
   cardModel
     .create({
       name,
@@ -41,7 +41,7 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   cardModel
-    .findByIdAndRemove(req.params.card_id)
+    .findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
         res
