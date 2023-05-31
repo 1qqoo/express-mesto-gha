@@ -22,11 +22,11 @@ const getUserById = (req, res) => {
     .orFail(new Error('NotFound'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'CastError') {
+      if (err.name === 'CastError') {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные.' });
-      } else if (err.message === 'NotFound') {
+      } else if (err.name === 'NotFound') {
         res
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден' });
