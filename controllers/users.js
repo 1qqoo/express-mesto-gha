@@ -1,5 +1,5 @@
 const userModel = require('../models/user');
-const ERROR_CODE = require('../utils/constants');
+const { ERROR_CODE } = require('../utils/constants');
 
 const getUsers = (req, res) => {
   userModel
