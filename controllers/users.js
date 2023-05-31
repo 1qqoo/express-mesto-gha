@@ -4,7 +4,7 @@ const getUsers = (req, res) => {
   userModel
     .find({})
     .then((users) => {
-      res.send(users);
+      res.status(200).send(users);
     })
     .catch((err) => {
       res.status(500).send({
@@ -19,20 +19,14 @@ const getUserById = (req, res) => {
   userModel
     .findById(req.params._id)
     .orFail(new Error('NotValidId'))
-    .then((user) => {
-      if (!user) {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден.' });
-      }
-      return res.send(user);
-    })
+    .then((users) => res.send(users))
     .catch((err) => {
       if (err.message === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+      } else if (err.message === 'NotFound') {
         res
-          .status(400)
-          .send({ message: 'Передан некорректный id пользователя.' });
-        return;
+          .status(404)
+          .send({ message: 'Пользователь по указанному id не найден' });
       }
       res.status(500).send({
         message: 'На сервере произошла ошибка',
@@ -114,19 +108,15 @@ const updateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(400)
-          .send({
-            message: 'Переданы некорректные данные при обновлении аватара.',
-          });
-      }
-      res
-        .status(500)
-        .send({
-          message: 'На сервере произошла ошибка',
-          err: err.message,
-          stack: err.stack,
+        res.status(400).send({
+          message: 'Переданы некорректные данные при обновлении аватара.',
         });
+      }
+      res.status(500).send({
+        message: 'На сервере произошла ошибка',
+        err: err.message,
+        stack: err.stack,
+      });
     });
 };
 
