@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const userRouter = require('./users');
 const cardRouter = require('./cards');
-const ERROR_CODE = require('../utils/constants');
+const { ERROR_CODE } = require('../utils/constants');
 
 module.exports = router;
 
