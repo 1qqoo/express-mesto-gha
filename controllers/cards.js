@@ -34,8 +34,6 @@ const createCard = (req, res) => {
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
           message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
@@ -60,8 +58,6 @@ const deleteCard = (req, res) => {
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
           message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
@@ -91,8 +87,6 @@ const likeCard = (req, res) => {
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
           message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
@@ -122,8 +116,6 @@ const dislikeCard = (req, res) => {
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
           message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });

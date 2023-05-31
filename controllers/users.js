@@ -33,8 +33,6 @@ const getUserById = (req, res) => {
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
           message: 'На сервере произошла ошибка',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
@@ -59,8 +57,6 @@ const createUser = (req, res) => {
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
           message: 'На сервере произошла ошибка',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
@@ -92,8 +88,6 @@ const updateUser = (req, res) => {
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
           message: 'На сервере произошла ошибка',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
