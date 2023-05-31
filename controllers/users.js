@@ -19,7 +19,7 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   userModel
     .findById(req.params._id)
-    .orFail(new Error('NotValidId'))
+    .orFail(new Error('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === 'CastError') {
@@ -77,7 +77,7 @@ const updateUser = (req, res) => {
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден.' });
       } else {
-        res.send({ data: user });
+        res.send({ user });
       }
     })
     .catch((err) => {
@@ -104,7 +104,7 @@ const updateUserAvatar = (req, res) => {
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден.' });
       } else {
-        res.send({ data: user });
+        res.send({ user });
       }
     })
     .catch((err) => {
