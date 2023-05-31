@@ -5,7 +5,7 @@ const getUsers = (req, res) => {
   userModel
     .find({})
     .then((users) => {
-      res.status(ERROR_CODE.OK).send(users);
+      res.status(ERROR_CODE.OK).send({ data: users });
     })
     .catch((err) => {
       res.status(ERROR_CODE.SERVER_ERROR).send({
@@ -20,7 +20,7 @@ const getUserById = (req, res) => {
   userModel
     .findById(req.params._id)
     .orFail(new Error('NotValidId'))
-    .then((users) => res.send(users))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === 'CastError') {
         res
@@ -47,7 +47,7 @@ const createUser = (req, res) => {
       avatar,
     })
     .then((user) => {
-      res.status(ERROR_CODE.CREATED).send(user);
+      res.status(ERROR_CODE.CREATED).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -77,7 +77,7 @@ const updateUser = (req, res) => {
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден.' });
       } else {
-        res.send({ user });
+        res.send({ data: user });
       }
     })
     .catch((err) => {
@@ -104,7 +104,7 @@ const updateUserAvatar = (req, res) => {
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден.' });
       } else {
-        res.send({ user });
+        res.send({ data: user });
       }
     })
     .catch((err) => {
