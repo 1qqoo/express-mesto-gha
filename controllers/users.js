@@ -47,7 +47,6 @@ const createUser = (req, res) => {
       name,
       about,
       avatar,
-      ...req.body,
     })
     .then((user) => {
       res.status(ERROR_CODE.CREATED).send(user);
