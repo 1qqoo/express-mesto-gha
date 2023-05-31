@@ -8,9 +8,7 @@ const getCards = (req, res) => {
       res.status(ERROR_CODE.OK).send(cards);
     })
     .catch((err) => {
-      res
-        .status(ERROR_CODE.SERVER_ERROR)
-        .send({ err: err.message, stack: err.stack });
+      res.status(ERROR_CODE.SERVER_ERROR).send({ message: err.message });
     });
 };
 
@@ -66,7 +64,7 @@ const deleteCard = (req, res) => {
 const likeCard = (req, res) => {
   cardModel
     .findByIdAndUpdate(
-      req.params.card_id,
+      req.params.cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
@@ -76,7 +74,7 @@ const likeCard = (req, res) => {
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Передан несуществующий id карточки.' });
       } else {
-        res.status(ERROR_CODE.CREATED).send(card);
+        res.send({ card });
       }
     })
     .catch((err) => {
@@ -86,7 +84,7 @@ const likeCard = (req, res) => {
         });
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'Internal Server Error',
+          message: err.message,
         });
       }
     });
@@ -95,7 +93,7 @@ const likeCard = (req, res) => {
 const dislikeCard = (req, res) => {
   cardModel
     .findByIdAndUpdate(
-      req.params.card_id,
+      req.params.cardId,
       { $pull: { likes: req.user._id } },
       { new: true },
     )
@@ -105,7 +103,7 @@ const dislikeCard = (req, res) => {
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Передан несуществующий id карточки.' });
       } else {
-        res.status(ERROR_CODE.CREATED).send({ card });
+        res.send({ card });
       }
     })
     .catch((err) => {
@@ -115,7 +113,7 @@ const dislikeCard = (req, res) => {
           .send({ message: 'Переданы некорректные данные для снятии лайка.' });
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'Internal Server Error',
+          message: err.message,
         });
       }
     });
