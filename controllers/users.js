@@ -1,13 +1,14 @@
 const userModel = require('../models/user');
+const ERROR_CODE = require('../utils/constants');
 
 const getUsers = (req, res) => {
   userModel
     .find({})
     .then((users) => {
-      res.status(200).send(users);
+      res.status(ERROR_CODE.OK).send(users);
     })
     .catch((err) => {
-      res.status(500).send({
+      res.status(ERROR_CODE.SERVER_ERROR).send({
         message: 'На сервере произошла ошибка',
         err: err.message,
         stack: err.stack,
@@ -22,17 +23,20 @@ const getUserById = (req, res) => {
     .then((users) => res.send(users))
     .catch((err) => {
       if (err.message === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные.' });
+        res
+          .status(ERROR_CODE.BAD_REQUEST)
+          .send({ message: 'Переданы некорректные данные.' });
       } else if (err.message === 'NotFound') {
         res
-          .status(404)
+          .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден' });
+      } else {
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'На сервере произошла ошибка',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(500).send({
-        message: 'На сервере произошла ошибка',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
@@ -46,19 +50,20 @@ const createUser = (req, res) => {
       ...req.body,
     })
     .then((user) => {
-      res.status(201).send(user);
+      res.status(ERROR_CODE.CREATED).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(ERROR_CODE.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
+      } else {
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'На сервере произошла ошибка',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(500).send({
-        message: 'На сервере произошла ошибка',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
@@ -74,22 +79,24 @@ const updateUser = (req, res) => {
     .then((user) => {
       if (!user) {
         res
-          .status(404)
+          .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден.' });
+      } else {
+        res.send({ user });
       }
-      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(ERROR_CODE.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
+      } else {
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'На сервере произошла ошибка',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(500).send({
-        message: 'На сервере произошла ошибка',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 
@@ -101,22 +108,24 @@ const updateUserAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         res
-          .status(404)
+          .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь по указанному id не найден.' });
+      } else {
+        res.send({ user });
       }
-      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(ERROR_CODE.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при обновлении аватара.',
         });
+      } else {
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'На сервере произошла ошибка',
+          err: err.message,
+          stack: err.stack,
+        });
       }
-      res.status(500).send({
-        message: 'На сервере произошла ошибка',
-        err: err.message,
-        stack: err.stack,
-      });
     });
 };
 

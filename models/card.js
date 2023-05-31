@@ -5,13 +5,13 @@ const cardSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
-      minlength: 2,
-      maxlength: 30,
+      required: [true, 'Поле "name" должно быть заполнено'],
+      minlength: [2, 'Минимальная длина поля "name" - 2'],
+      maxlength: [30, 'Максимальная длина поля "name" - 30'],
     },
     link: {
       type: String,
-      required: true,
+      required: [true, 'Поле "link" должно быть заполнено'],
       validate: {
         validator: (v) => validator.isURL(v),
         message: 'Некорректный URL',
@@ -19,7 +19,7 @@ const cardSchema = new mongoose.Schema(
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      required: [true, 'Поле "owner" должно быть заполнено'],
     },
     likes: [
       {
