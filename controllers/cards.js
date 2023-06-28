@@ -1,4 +1,4 @@
-const { mongoose } = require('mongoose');
+const { ValidationError, CastError } = require('mongoose').Error;
 const cardModel = require('../models/card');
 const { ERROR_CODE } = require('../utils/constants');
 const {
@@ -25,7 +25,7 @@ const createCard = (req, res, next) => {
     })
     .then((card) => res.status(ERROR_CODE.CREATED).send(card))
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err instanceof ValidationError) {
         return next(
           new InaccurateDataError(
             'Переданы некорректные данные при создании карточки',
@@ -54,7 +54,7 @@ const deleteCard = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err instanceof mongoose.CastError) {
+      if (err instanceof CastError) {
         return next(
           new InaccurateDataError(
             'Переданы некорректные данные при удалении карточки',
@@ -77,7 +77,7 @@ const likeCard = (req, res, next) => {
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err instanceof mongoose.CastError) {
+      if (err instanceof CastError) {
         return next(
           new InaccurateDataError('Передан несуществующий id карточки'),
         );
