@@ -1,5 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const { isURL } = require('validator/lib/isURL');
+const { isURL } = require('validator');
 
 const signinValidate = celebrate({
   body: Joi.object().keys({
