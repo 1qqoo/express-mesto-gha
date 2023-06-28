@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const helmet = require('helmet');
 const router = require('./routes');
 const auth = require('./middlewares/auth');
@@ -19,5 +20,6 @@ app.use(helmet());
 app.post('/signup', signupValidate, createUser);
 app.post('/signin', signinValidate, login);
 app.use(auth, router);
+app.use(errors());
 app.use(centerErrorHandler);
 app.listen(PORT);
