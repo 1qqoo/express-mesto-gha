@@ -39,14 +39,24 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   cardModel
-    .findByIdAndRemove(req.params.cardId)
+    .findById(req.params.cardId)
+    .orFail(() => {
+      res
+        .status(ERROR_CODE.NOT_FOUND)
+        .send({ message: 'Карточка с указанным id не найдена.' });
+    })
     .then((card) => {
-      if (!card) {
-        res
-          .status(ERROR_CODE.NOT_FOUND)
-          .send({ message: 'Карточка с указанным id не найдена.' });
+      if (card.owner.toString() !== req.user._id.toString()) {
+        res.status(ERROR_CODE.FORBIDDEN).send({
+          message: 'Нельзя трогать чужие карточки',
+        });
       }
-      res.send({ card });
+      card.deleteOne().then(() => {
+        res.status(ERROR_CODE.OK).send({
+          message:
+            'Спасибо что воспользовались моими услугами и удалили карточку, которую я любил',
+        });
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {

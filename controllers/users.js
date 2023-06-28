@@ -1,3 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable consistent-return */
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const userModel = require('../models/user');
 const { ERROR_CODE } = require('../utils/constants');
 
@@ -16,7 +20,7 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   userModel
-    .findById(req.params.userId)
+    .findById(req.params ? req.params.userId : req.user._id)
     .orFail(new Error('NotFound'))
     .then((user) => res.send(user))
     .catch((err) => {
@@ -37,15 +41,25 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  userModel
-    .create({
-      name,
-      about,
-      avatar,
-    })
+  const { name, about, avatar, password, email } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hashesPassword) =>
+      userModel.create({
+        name,
+        about,
+        avatar,
+        password: hashesPassword,
+        email,
+      }),
+    )
     .then((user) => {
-      res.status(ERROR_CODE.CREATED).send(user);
+      res.status(ERROR_CODE.CREATED).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -120,10 +134,27 @@ const updateUserAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return userModel
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', {
+        expiresIn: '7d',
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   updateUserAvatar,
+  login,
 };
