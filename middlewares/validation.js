@@ -1,8 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
-
-const isURL = (value, helpers) =>
-  validator.isURL(value) ? value : helpers.message('notValid.url');
+const { isURL } = require('validator');
 
 const signinValidate = celebrate({
   body: Joi.object().keys({
