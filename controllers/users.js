@@ -18,8 +18,8 @@ const getUsers = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   userModel
-    .findById(req.params ? req.params.userId : req.user._id)
-    .orFail(next(new NotFoundError('NotFound')))
+    .findById(req.params.userId ? req.params.userId : req.user._id)
+    .orFail(() => next(new NotFoundError('NotFound')))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err instanceof CastError) {
@@ -56,7 +56,6 @@ const createUser = (req, res, next) => {
           new ConflictError('Пользователь с таким email уже существует'),
         );
       }
-      console.log(err);
       if (err instanceof ValidationError) {
         return next(
           new InaccurateDataError(
@@ -77,9 +76,7 @@ const updateUser = (req, res, next) => {
       { name, about },
       { new: true, runValidators: true },
     )
-    .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному _id не найден');
-    })
+    .orFail(() => next(new NotFoundError('NotFound')))
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err instanceof ValidationError) {

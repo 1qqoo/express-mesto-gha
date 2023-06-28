@@ -66,10 +66,11 @@ const deleteCard = (req, res, next) => {
 };
 
 const likeCard = (req, res, next) => {
+  const likeMethod = req.method === 'PUT' ? '$addToSet' : '$pull';
   cardModel
     .findByIdAndUpdate(
       req.params.cardId,
-      { $addToSet: { likes: req.user._id } },
+      { [likeMethod]: { likes: req.user._id } },
       { new: true },
     )
     .orFail(() => {
@@ -86,39 +87,9 @@ const likeCard = (req, res, next) => {
     });
 };
 
-// const dislikeCard = (req, res) => {
-//   cardModel
-//     .findByIdAndUpdate(
-//       req.params.cardId,
-//       { $pull: { likes: req.user._id } },
-//       { new: true },
-//     )
-//     .then((card) => {
-//       if (!card) {
-//         res
-//           .status(ERROR_CODE.NOT_FOUND)
-//           .send({ message: 'Передан несуществующий id карточки.' });
-//       } else {
-//         res.send({ card });
-//       }
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         res
-//           .status(ERROR_CODE.BAD_REQUEST)
-//           .send({ message: 'Переданы некорректные данные для снятии лайка.' });
-//       } else {
-//         res.status(ERROR_CODE.SERVER_ERROR).send({
-//           message: err.message,
-//         });
-//       }
-//     });
-// };
-
 module.exports = {
   getCards,
   createCard,
   deleteCard,
   likeCard,
-  // dislikeCard,
 };
