@@ -1,46 +1,35 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable consistent-return */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { mongoose } = require('mongoose');
 const userModel = require('../models/user');
 const { ERROR_CODE } = require('../utils/constants');
+const {
+  InaccurateDataError,
+  ConflictError,
+  NotFoundError,
+} = require('../errors/errors');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   userModel
     .find({})
-    .then((users) => {
-      res.status(ERROR_CODE.OK).send(users);
-    })
-    .catch(() => {
-      res.status(ERROR_CODE.SERVER_ERROR).send({
-        message: 'На сервере произошла ошибка',
-      });
-    });
+    .then((users) => res.send(users))
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   userModel
     .findById(req.params ? req.params.userId : req.user._id)
-    .orFail(new Error('NotFound'))
+    .orFail(next(new NotFoundError('NotFound')))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res
-          .status(ERROR_CODE.BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные.' });
-      } else if (err.message === 'NotFound') {
-        res
-          .status(ERROR_CODE.NOT_FOUND)
-          .send({ message: 'Пользователь по указанному id не найден' });
-      } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
-        });
+      if (err instanceof mongoose.CastError) {
+        return next(new InaccurateDataError('Переданы некорректные данные'));
       }
+      return next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, password, email } = req.body;
   bcrypt
     .hash(password, 10)
@@ -62,19 +51,23 @@ const createUser = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE.BAD_REQUEST).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
-      } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
-        });
+      if (err.code === 11000) {
+        return next(
+          new ConflictError('Пользователь с таким email уже существует'),
+        );
       }
+      if (err instanceof mongoose.ValidationError) {
+        return next(
+          new InaccurateDataError(
+            'Переданы некорректные данные при создании пользователя',
+          ),
+        );
+      }
+      return next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, about } = req.body;
   userModel
@@ -83,58 +76,44 @@ const updateUser = (req, res) => {
       { name, about },
       { new: true, runValidators: true },
     )
-    .then((user) => {
-      if (!user) {
-        res
-          .status(ERROR_CODE.NOT_FOUND)
-          .send({ message: 'Пользователь по указанному id не найден.' });
-      } else {
-        res.send({ user });
-      }
+    .orFail(() => {
+      throw new NotFoundError('Пользователь по указанному _id не найден');
     })
+    .then((user) => res.send({ user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE.BAD_REQUEST).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
-        });
-      } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
-        });
+      if (err instanceof mongoose.ValidationError) {
+        return next(
+          new InaccurateDataError(
+            'Переданы некорректные данные при обновлении профиля',
+          ),
+        );
       }
+      return next(err);
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const userId = req.user._id;
   const { avatar } = req.body;
   userModel
     .findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
-        res
-          .status(ERROR_CODE.NOT_FOUND)
-          .send({ message: 'Пользователь по указанному id не найден.' });
-      } else {
-        res.send({ user });
-      }
+    .orFail(() => {
+      throw new NotFoundError('Пользователь по указанному _id не найден');
     })
+    .then((user) => res.send({ user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE.BAD_REQUEST).send({
-          message: 'Переданы некорректные данные при обновлении аватара.',
-        });
-      } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
-          err: err.message,
-          stack: err.stack,
-        });
+      if (err instanceof mongoose.ValidationError) {
+        return next(
+          new InaccurateDataError(
+            'Переданы некорректные данные при обновлении аватара',
+          ),
+        );
       }
+      return next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return userModel
@@ -145,9 +124,7 @@ const login = (req, res) => {
       });
       res.send({ token });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
 module.exports = {
